@@ -1,7 +1,7 @@
 // /functions/redirect.js
 export async function onRequest(context) {
   const { request } = context;
-  const worker = "https://cf-pages-test-6sn.pages.dev";
+  const worker = "https://www.zakaya.delivery";
   const url = new URL(request.url);
   let pathname = url.pathname;
 
