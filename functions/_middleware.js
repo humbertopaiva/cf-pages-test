@@ -65,6 +65,10 @@ export async function onRequest(context) {
         return Response.redirect(`${worker}`, 301);
       }
 
+      if (newLocation === "https://resultadosdigitais.com.br/") {
+        return Response.redirect(`${worker}/blog`, 301);
+      }
+
       if (pathname.startsWith("/blog")) {
         if (newLocation !== formattedPathname) {
           return Response.redirect(`${worker}/blog${newLocation}`, 301);
