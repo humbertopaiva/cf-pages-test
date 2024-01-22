@@ -75,7 +75,6 @@ async function handleSitemapRequest() {
   const response = await fetch(sitemapUrl);
   let sitemap = await response.text();
 
-  // Substitui o hostname no sitemap
   sitemap = sitemap.replace(
     /https:\/\/www\.rdstation\.com/g,
     "https://cf-pages-test-6sn.pages.dev"
