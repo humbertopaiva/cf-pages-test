@@ -72,20 +72,20 @@ export async function onRequest(context) {
 
 async function handleSitemapRequest(pathname) {
   const sitemapUrl = pathname.startsWith("/blog-sitemap.xml")
-    ? `https://resultadosdigitais.com.br${pathname}`
+    ? `https://www.resultadosdigitais.com.br${pathname}`
     : `https://www.rdstation.com${pathname}`;
   const response = await fetch(sitemapUrl);
   let sitemap = await response.text();
 
-  sitemap = pathname.startsWith("/blog-sitemap.xml")
-    ? sitemap.replace(
-        /https:\/\/resultadosdigitais.com.br/g,
-        "https://cf-pages-test-6sn.pages.dev"
-      )
-    : sitemap.replace(
-        /https:\/\/www\.rdstation\.com/g,
-        "https://cf-pages-test-6sn.pages.dev/blog"
-      );
+  sitemap = sitemap.replace(
+    /https:\/\/www\.rdstation\.com/g,
+    "https://cf-pages-test-6sn.pages.dev"
+  );
+
+  sitemap.replace(
+    /https:\/\/resultadosdigitais.com.br/g,
+    "https://cf-pages-test-6sn.pages.dev/blog"
+  );
 
   sitemap = sitemap.replace(/<\?xml-stylesheet.*\?>/i, "");
 
