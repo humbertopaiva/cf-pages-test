@@ -81,20 +81,7 @@ async function handleSitemapRequest() {
     "https://cf-pages-test-6sn.pages.dev"
   );
 
-  // Escapa caracteres especiais
-  sitemap = escapeXMLCharacters(sitemap);
-
   return new Response(sitemap, {
     headers: { "Content-Type": "application/xml" },
   });
-}
-
-// Função para escapar caracteres especiais em XML
-function escapeXMLCharacters(xml) {
-  return xml
-    .replace(/&/g, "&amp;")
-    .replace(/</g, "&lt;")
-    .replace(/>/g, "&gt;")
-    .replace(/"/g, "&quot;")
-    .replace(/'/g, "&apos;");
 }
