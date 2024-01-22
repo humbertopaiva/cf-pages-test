@@ -6,11 +6,24 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
+  // Verifica se a URL é de um arquivo de mídia
+  if (pathname.match(/\.(jpg|png|gif)$/)) {
+    // Construa a nova URL para a mídia
+    const newMediaUrl = `https://resultadosdigitais.com.br${pathname}`;
+
+    // Redireciona para a nova URL da mídia
+    return Response.redirect(newMediaUrl, 301);
+  }
+
   if (pathname.includes(".xml")) {
     return handleSitemapRequest(pathname);
   }
 
-  if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
+  if (
+    pathname.startsWith("/blog") &&
+    !pathname.endsWith("/") &&
+    !pathname.match(/\.(jpg|png|gif)$/)
+  ) {
     const newUrl = `${worker}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
   }
