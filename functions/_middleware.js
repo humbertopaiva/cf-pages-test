@@ -1,90 +1,148 @@
 // /functions/redirect.js
 
-const ResdigitaisSitemapPaths = [
-  "/post-sitemap1.xml",
-  "/post-sitemap2.xml",
-  "/page-sitemap.xml",
-  "/trilha-sitemap.xml",
-  "/web-story-sitemap.xml",
-  "/tools-sitemap.xml",
-  "/category-sitemap.xml",
-  "/categories-sitemap.xml",
-  "/post_funnel-sitemap.xml",
-  "/funnel-sitemap.xml",
-  "/theme-sitemap.xml",
-  "/format-sitemap.xml",
-  "/comarketing-sitemap.xml",
-];
-
 export async function onRequest(context) {
   const { request } = context;
   const worker = "https://cf-pages-test-6sn.pages.dev";
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  if (isMediaFile(pathname)) {
-    return handleMediaRequest(pathname);
-  } else if (pathname.includes(".xml")) {
-    return handleSitemapRequest(pathname);
-  } else {
-    return handleOtherRequests(request, pathname, worker);
+  // Verifica se a URL é de um arquivo de mídia (como .jpg, .png, .gif)
+  if (pathname.startsWith("/blog") && pathname.match(/\.(jpg|png|gif|jpeg)$/)) {
+    // Construa a nova URL para a mídia
+    const newMediaUrl = `https://resultadosdigitais.com.br${pathname.replace(
+      /^\/blog(\/|$)/,
+      "$1"
+    )}`;
+
+    // Realiza a requisição para a URL da mídia
+    try {
+      const mediaResponse = await fetch(newMediaUrl);
+      // Retorna a resposta da mídia
+      return new Response(mediaResponse.body, {
+        status: mediaResponse.status,
+        statusText: mediaResponse.statusText,
+        headers: mediaResponse.headers,
+      });
+    } catch (error) {
+      return new Response(`Erro ao acessar ${newMediaUrl}: ${error.message}`, {
+        status: 500,
+      });
+    }
   }
-}
 
-function isMediaFile(pathname) {
-  return pathname.match(/\.(jpg|png|gif|jpeg)$/);
-}
+  if (pathname.includes(".xml")) {
+    return handleSitemapRequest(pathname);
+  }
 
-async function handleMediaRequest(pathname) {
-  const mediaUrl = `https://resultadosdigitais.com.br${pathname}`;
+  if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
+    const newUrl = `${worker}${pathname}/${url.search}${url.hash}`;
+    return Response.redirect(newUrl, 301);
+  }
+
+  const formattedPathname = pathname.replace(/^\/blog(\/|$)/, "$1");
+
+  let targetUrl;
+
+  if (pathname.startsWith("/blog")) {
+    targetUrl = `https://resultadosdigitais.com.br${formattedPathname}${url.search}${url.hash}`;
+  } else {
+    targetUrl = `https://www.rdstation.com${formattedPathname}${url.search}${url.hash}`;
+  }
+
+  const modifiedRequest = new Request(targetUrl, {
+    method: request.method,
+    headers: request.headers,
+    body: request.body,
+    redirect: "manual",
+  });
+
   try {
-    const response = await fetch(mediaUrl);
-    return forwardResponse(response);
+    let response = await fetch(modifiedRequest);
+
+    if (response.status === 301) {
+      const newLocation = response.headers.get("Location");
+      if (newLocation === "https://www.rdstation.com") {
+        return Response.redirect(`${worker}`, 301);
+      }
+
+      if (pathname.startsWith("/blog")) {
+        if (newLocation !== formattedPathname) {
+          return Response.redirect(`${worker}/blog${newLocation}`, 301);
+        }
+      } else {
+        let newLocationUrl = new URL(newLocation);
+        let newPathname = newLocationUrl.pathname;
+
+        if (newLocation !== formattedPathname) {
+          return Response.redirect(`${worker}${newPathname}`, 301);
+        }
+      }
+    }
+
+    return new Response(response.body, {
+      status: response.status,
+      statusText: response.statusText,
+      headers: {
+        ...response.headers,
+      },
+    });
   } catch (error) {
-    return errorResponse(mediaUrl, error);
+    return new Response(`Erro ao acessar ${targetUrl}: ${error.message}`, {
+      status: 500,
+    });
   }
 }
 
 async function handleSitemapRequest(pathname) {
-  const sitemapUrl = getSitemapUrl(pathname);
-  try {
-    const response = await fetch(sitemapUrl);
-    let sitemap = await response.text();
-    sitemap = updateSitemapUrls(sitemap, pathname);
-    return new Response(sitemap, {
-      headers: { "Content-Type": "application/xml" },
-    });
-  } catch (error) {
-    return errorResponse(sitemapUrl, error);
-  }
-}
+  const ResdigitaisSitemapPaths = [
+    "/post-sitemap1.xml",
+    "/post-sitemap2.xml",
+    "/page-sitemap.xml",
+    "/trilha-sitemap.xml",
+    "/web-story-sitemap.xml",
+    "/tools-sitemap.xml",
+    "/category-sitemap.xml",
+    "/categories-sitemap.xml",
+    "/post_funnel-sitemap.xml",
+    "/funnel-sitemap.xml",
+    "/theme-sitemap.xml",
+    "/format-sitemap.xml",
+    "/comarketing-sitemap.xml",
+  ];
 
-function getSitemapUrl(pathname) {
+  let sitemapUrl = "";
+
   if (ResdigitaisSitemapPaths.includes(pathname)) {
-    return `https://www.resultadosdigitais.com.br${pathname}`;
+    sitemapUrl = `https://www.resultadosdigitais.com.br${pathname}`;
+  } else {
+    sitemapUrl = pathname.startsWith("/blog-sitemap.xml")
+      ? `https://www.resultadosdigitais.com.br/sitemap.xml`
+      : `https://www.rdstation.com${pathname}`;
   }
-  return pathname.startsWith("/blog-sitemap.xml")
-    ? `https://www.resultadosdigitais.com.br/sitemap.xml`
-    : `https://www.rdstation.com${pathname}`;
-}
 
-function updateSitemapUrls(sitemap, pathname) {
-  // Substitui URLs do RD Station pelo seu proxy
+  const response = await fetch(sitemapUrl);
+  let sitemap = await response.text();
+
   sitemap = sitemap.replace(
     /https:\/\/www\.rdstation\.com/g,
     "https://cf-pages-test-6sn.pages.dev"
   );
 
-  // Verifica se o pathname está na lista de sitemaps específicos do blog
   if (ResdigitaisSitemapPaths.includes(pathname)) {
-    // Substitui URLs específicas do blog por URLs do seu proxy para o blog
     sitemap = sitemap.replace(
       /https:\/\/resultadosdigitais.com.br/g,
       "https://cf-pages-test-6sn.pages.dev/blog"
     );
+  } else {
+    sitemap = sitemap.replace(
+      /https:\/\/resultadosdigitais.com.br/g,
+      "https://cf-pages-test-6sn.pages.dev"
+    );
   }
 
-  // Adiciona um sitemap extra se o pathname for sitemap_index.xml
+  sitemap = sitemap.replace(/<\?xml-stylesheet.*\?>/i, "");
+
+  // Adiciona o sitemap extra se o pathname for sitemap_index.xml
   if (pathname.includes("sitemap_index.xml")) {
     const extraSitemap = `
       <sitemap>
@@ -99,37 +157,7 @@ function updateSitemapUrls(sitemap, pathname) {
     );
   }
 
-  return sitemap;
-}
-
-async function handleOtherRequests(request, pathname, worker) {
-  const targetUrl = getTargetUrl(pathname, worker);
-  try {
-    const response = await fetch(targetUrl, request);
-    return forwardResponse(response);
-  } catch (error) {
-    return errorResponse(targetUrl, error);
-  }
-}
-
-function getTargetUrl(pathname, worker) {
-  const formattedPathname = pathname.replace(/^\/blog(\/|$)/, "$1");
-  if (pathname.startsWith("/blog")) {
-    return `https://resultadosdigitais.com.br${formattedPathname}`;
-  }
-  return `https://www.rdstation.com${formattedPathname}`;
-}
-
-function forwardResponse(response) {
-  return new Response(response.body, {
-    status: response.status,
-    statusText: response.statusText,
-    headers: response.headers,
-  });
-}
-
-function errorResponse(url, error) {
-  return new Response(`Erro ao acessar ${url}: ${error.message}`, {
-    status: 500,
+  return new Response(sitemap, {
+    headers: { "Content-Type": "application/xml" },
   });
 }
