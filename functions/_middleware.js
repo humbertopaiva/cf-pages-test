@@ -71,7 +71,7 @@ export async function onRequest(context) {
 }
 
 async function handleSitemapRequest() {
-  const sitemapUrl = "https://www.rdstation.com/sitemap.xml";
+  const sitemapUrl = "https://www.rdstation.com/sitemap_index.xml";
   const response = await fetch(sitemapUrl);
   let sitemap = await response.text();
 
@@ -81,7 +81,20 @@ async function handleSitemapRequest() {
     "https://cf-pages-test-6sn.pages.dev"
   );
 
+  // Escapa caracteres especiais
+  sitemap = escapeXMLCharacters(sitemap);
+
   return new Response(sitemap, {
     headers: { "Content-Type": "application/xml" },
   });
+}
+
+// Função para escapar caracteres especiais em XML
+function escapeXMLCharacters(xml) {
+  return xml
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&apos;");
 }
