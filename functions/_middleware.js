@@ -25,8 +25,6 @@ export async function onRequest(context) {
     return handleSitemapRequest(pathname);
   }
 
-  const oldPagesPathname = ["/teste", "/teste2"];
-
   if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
     const newUrl = `${worker}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
@@ -106,12 +104,12 @@ async function handleSitemapRequest(pathname) {
   );
 
   if (ResdigitaisSitemapPaths.includes(pathname)) {
-    sitemap.replace(
+    sitemap = sitemap.replace(
       /https:\/\/resultadosdigitais.com.br/g,
       "https://cf-pages-test-6sn.pages.dev/blog"
     );
   } else {
-    sitemap.replace(
+    sitemap = sitemap.replace(
       /https:\/\/resultadosdigitais.com.br/g,
       "https://cf-pages-test-6sn.pages.dev"
     );
