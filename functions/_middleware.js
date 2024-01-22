@@ -5,7 +5,7 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  if (pathname === "/sitemap.xml") {
+  if (pathname === "/sitemap_index.xml") {
     return handleSitemapRequest();
   }
 
