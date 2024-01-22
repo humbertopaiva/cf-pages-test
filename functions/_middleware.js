@@ -6,24 +6,32 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  // Verifica se a URL é de um arquivo de mídia
-  if (pathname.match(/\.(jpg|png|gif)$/)) {
+  // Verifica se a URL é de um arquivo de mídia (como .jpg, .png, .gif)
+  if (pathname.startsWith("/blog") && pathname.match(/\.(jpg|png|gif|jpeg)$/)) {
     // Construa a nova URL para a mídia
     const newMediaUrl = `https://resultadosdigitais.com.br${pathname}`;
 
-    // Redireciona para a nova URL da mídia
-    return Response.redirect(newMediaUrl, 301);
+    // Realiza a requisição para a URL da mídia
+    try {
+      const mediaResponse = await fetch(newMediaUrl);
+      // Retorna a resposta da mídia
+      return new Response(mediaResponse.body, {
+        status: mediaResponse.status,
+        statusText: mediaResponse.statusText,
+        headers: mediaResponse.headers,
+      });
+    } catch (error) {
+      return new Response(`Erro ao acessar ${newMediaUrl}: ${error.message}`, {
+        status: 500,
+      });
+    }
   }
 
   if (pathname.includes(".xml")) {
     return handleSitemapRequest(pathname);
   }
 
-  if (
-    pathname.startsWith("/blog") &&
-    !pathname.endsWith("/") &&
-    !pathname.match(/\.(jpg|png|gif)$/)
-  ) {
+  if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
     const newUrl = `${worker}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
   }
