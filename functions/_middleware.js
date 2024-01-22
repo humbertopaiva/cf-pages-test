@@ -1,4 +1,20 @@
 // /functions/redirect.js
+const ResdigitaisSitemapPaths = [
+  "/post-sitemap1.xml",
+  "/post-sitemap2.xml",
+  "/page-sitemap.xml",
+  "/trilha-sitemap.xml",
+  "/web-story-sitemap.xml",
+  "/tools-sitemap.xml",
+  "/category-sitemap.xml",
+  "/categories-sitemap.xml",
+  "/post_funnel-sitemap.xml",
+  "/funnel-sitemap.xml",
+  "/theme-sitemap.xml",
+  "/format-sitemap.xml",
+  "/comarketing-sitemap.xml",
+];
+
 export async function onRequest(context) {
   const { request } = context;
   const worker = "https://cf-pages-test-6sn.pages.dev";
@@ -71,9 +87,16 @@ export async function onRequest(context) {
 }
 
 async function handleSitemapRequest(pathname) {
-  const sitemapUrl = pathname.startsWith("/blog-sitemap.xml")
-    ? `https://www.resultadosdigitais.com.br${pathname}`
-    : `https://www.rdstation.com${pathname}`;
+  let sitemapUrl = "";
+
+  if (ResdigitaisSitemapPaths.includes(pathname)) {
+    sitemapUrl = -`https://www.resultadosdigitais.com.br${pathname}`;
+  } else {
+    sitemapUrl = pathname.startsWith("/blog-sitemap.xml")
+      ? `https://www.resultadosdigitais.com.br/sitemap.xml`
+      : `https://www.rdstation.com${pathname}`;
+  }
+
   const response = await fetch(sitemapUrl);
   let sitemap = await response.text();
 
@@ -82,10 +105,17 @@ async function handleSitemapRequest(pathname) {
     "https://cf-pages-test-6sn.pages.dev"
   );
 
-  sitemap.replace(
-    /https:\/\/resultadosdigitais.com.br/g,
-    "https://cf-pages-test-6sn.pages.dev/blog"
-  );
+  if (ResdigitaisSitemapPaths.includes(pathname)) {
+    sitemap.replace(
+      /https:\/\/resultadosdigitais.com.br/g,
+      "https://cf-pages-test-6sn.pages.dev/blog"
+    );
+  } else {
+    sitemap.replace(
+      /https:\/\/resultadosdigitais.com.br/g,
+      "https://cf-pages-test-6sn.pages.dev"
+    );
+  }
 
   sitemap = sitemap.replace(/<\?xml-stylesheet.*\?>/i, "");
 
