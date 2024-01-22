@@ -82,6 +82,21 @@ async function handleSitemapRequest(pathname) {
 
   sitemap = sitemap.replace(/<\?xml-stylesheet.*\?>/i, "");
 
+  // Adiciona o sitemap extra se o pathname for sitemap_index.xml
+  if (pathname.includes("sitemap_index.xml")) {
+    const extraSitemap = `
+      <sitemap>
+        <loc>https://cf-pages-test-6sn.pages.dev/blog-sitemap.xml</loc>
+        <lastmod>2023-08-09T10:55:00-03:00</lastmod>
+      </sitemap>
+    `;
+    // Insere o sitemap extra antes do fechamento da tag sitemapindex
+    sitemap = sitemap.replace(
+      "</sitemapindex>",
+      `${extraSitemap}</sitemapindex>`
+    );
+  }
+
   return new Response(sitemap, {
     headers: { "Content-Type": "application/xml" },
   });
