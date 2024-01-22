@@ -6,7 +6,7 @@ export async function onRequest(context) {
   const pathname = url.pathname;
 
   if (pathname.includes(".xml")) {
-    return handleSitemapRequest();
+    return handleSitemapRequest(pathname);
   }
 
   const oldPagesPathname = ["/teste", "/teste2"];
@@ -70,8 +70,8 @@ export async function onRequest(context) {
   }
 }
 
-async function handleSitemapRequest() {
-  const sitemapUrl = "https://www.rdstation.com/sitemap_index.xml";
+async function handleSitemapRequest(pathname) {
+  const sitemapUrl = `https://www.rdstation.com${pathname}`;
   const response = await fetch(sitemapUrl);
   let sitemap = await response.text();
 
