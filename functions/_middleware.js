@@ -9,7 +9,10 @@ export async function onRequest(context) {
   // Verifica se a URL é de um arquivo de mídia (como .jpg, .png, .gif)
   if (pathname.startsWith("/blog") && pathname.match(/\.(jpg|png|gif|jpeg)$/)) {
     // Construa a nova URL para a mídia
-    const newMediaUrl = `https://resultadosdigitais.com.br${pathname}`;
+    const newMediaUrl = `https://resultadosdigitais.com.br${pathname.replace(
+      /^\/blog(\/|$)/,
+      "$1"
+    )}`;
 
     // Realiza a requisição para a URL da mídia
     try {
