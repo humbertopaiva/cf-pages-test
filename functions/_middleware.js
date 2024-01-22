@@ -5,7 +5,7 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  if (pathname === "/sitemap_index.xml") {
+  if (pathname.includes(".xml")) {
     return handleSitemapRequest();
   }
 
