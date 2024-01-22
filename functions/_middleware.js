@@ -1,19 +1,4 @@
 // /functions/redirect.js
-const ResdigitaisSitemapPaths = [
-  "/post-sitemap1.xml",
-  "/post-sitemap2.xml",
-  "/page-sitemap.xml",
-  "/trilha-sitemap.xml",
-  "/web-story-sitemap.xml",
-  "/tools-sitemap.xml",
-  "/category-sitemap.xml",
-  "/categories-sitemap.xml",
-  "/post_funnel-sitemap.xml",
-  "/funnel-sitemap.xml",
-  "/theme-sitemap.xml",
-  "/format-sitemap.xml",
-  "/comarketing-sitemap.xml",
-];
 
 export async function onRequest(context) {
   const { request } = context;
@@ -85,6 +70,22 @@ export async function onRequest(context) {
 }
 
 async function handleSitemapRequest(pathname) {
+  const ResdigitaisSitemapPaths = [
+    "/post-sitemap1.xml",
+    "/post-sitemap2.xml",
+    "/page-sitemap.xml",
+    "/trilha-sitemap.xml",
+    "/web-story-sitemap.xml",
+    "/tools-sitemap.xml",
+    "/category-sitemap.xml",
+    "/categories-sitemap.xml",
+    "/post_funnel-sitemap.xml",
+    "/funnel-sitemap.xml",
+    "/theme-sitemap.xml",
+    "/format-sitemap.xml",
+    "/comarketing-sitemap.xml",
+  ];
+
   let sitemapUrl = "";
 
   if (ResdigitaisSitemapPaths.includes(pathname)) {
