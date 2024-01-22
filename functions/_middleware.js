@@ -6,8 +6,10 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  // Verifica se a URL é de um arquivo de mídia (como .jpg, .png, .gif)
   if (pathname.startsWith("/blog") && pathname.match(/\.(jpg|png|gif|jpeg)$/)) {
+    await handleResdigitaisSitemapMedia();
+  }
+  async function handleResdigitaisSitemapMedia() {
     // Construa a nova URL para a mídia
     const newMediaUrl = `https://resultadosdigitais.com.br${pathname.replace(
       /^\/blog(\/|$)/,
@@ -34,20 +36,37 @@ export async function onRequest(context) {
     return handleSitemapRequest(pathname);
   }
 
-  if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
+  function addBlogTrailingSlash() {
     const newUrl = `${worker}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
   }
 
+  if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
+    addBlogTrailingSlash();
+  }
+
+  function getFormattedPathName(pathname) {
+    if (pathname.startsWith("/blog")) {
+      return `https://resultadosdigitais.com.br${formattedPathname}${url.search}${url.hash}`;
+    } else {
+      return `https://www.rdstation.com${formattedPathname}${url.search}${url.hash}`;
+    }
+  }
+
+  // if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
+  //   const newUrl = `${worker}${pathname}/${url.search}${url.hash}`;
+  //   return Response.redirect(newUrl, 301);
+  // }
+
   const formattedPathname = pathname.replace(/^\/blog(\/|$)/, "$1");
 
-  let targetUrl;
+  let targetUrl = getFormattedPathName(pathname);
 
-  if (pathname.startsWith("/blog")) {
-    targetUrl = `https://resultadosdigitais.com.br${formattedPathname}${url.search}${url.hash}`;
-  } else {
-    targetUrl = `https://www.rdstation.com${formattedPathname}${url.search}${url.hash}`;
-  }
+  // if (pathname.startsWith("/blog")) {
+  //   targetUrl = `https://resultadosdigitais.com.br${formattedPathname}${url.search}${url.hash}`;
+  // } else {
+  //   targetUrl = `https://www.rdstation.com${formattedPathname}${url.search}${url.hash}`;
+  // }
 
   const modifiedRequest = new Request(targetUrl, {
     method: request.method,
