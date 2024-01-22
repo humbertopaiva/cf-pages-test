@@ -89,7 +89,7 @@ async function handleSitemapRequest(pathname) {
   let sitemapUrl = "";
 
   if (ResdigitaisSitemapPaths.includes(pathname)) {
-    sitemapUrl = -`https://www.resultadosdigitais.com.br${pathname}`;
+    sitemapUrl = `https://www.resultadosdigitais.com.br${pathname}`;
   } else {
     sitemapUrl = pathname.startsWith("/blog-sitemap.xml")
       ? `https://www.resultadosdigitais.com.br/sitemap.xml`
