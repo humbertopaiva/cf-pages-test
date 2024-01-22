@@ -80,6 +80,8 @@ async function handleSitemapRequest() {
     "https://cf-pages-test-6sn.pages.dev"
   );
 
+  sitemap = sitemap.replace(/<\?xml-stylesheet.*\?>/i, "");
+
   return new Response(sitemap, {
     headers: { "Content-Type": "application/xml" },
   });
