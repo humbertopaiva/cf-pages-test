@@ -3,7 +3,9 @@ export async function onRequest(context) {
   const { request } = context;
   const worker = "https://cf-pages-test-6sn.pages.dev";
   const url = new URL(request.url);
-  let pathname = url.pathname;
+  const pathname = url.pathname;
+
+  const oldPagesPathname = ["/teste", "/teste2"];
 
   if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
     const newUrl = `${worker}${pathname}/${url.search}${url.hash}`;
@@ -32,6 +34,9 @@ export async function onRequest(context) {
 
     if (response.status === 301) {
       const newLocation = response.headers.get("Location");
+      if (newLocation === "https://www.rdstation.com") {
+        return Response.redirect(`${worker}`, 301);
+      }
 
       if (pathname.startsWith("/blog")) {
         if (newLocation !== formattedPathname) {
