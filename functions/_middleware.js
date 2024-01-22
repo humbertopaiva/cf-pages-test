@@ -5,6 +5,10 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
+  if (pathname === "/sitemap.xml") {
+    return handleSitemapRequest();
+  }
+
   const oldPagesPathname = ["/teste", "/teste2"];
 
   if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
@@ -64,4 +68,20 @@ export async function onRequest(context) {
       status: 500,
     });
   }
+}
+
+async function handleSitemapRequest() {
+  const sitemapUrl = "https://www.rdstation.com/sitemap.xml";
+  const response = await fetch(sitemapUrl);
+  let sitemap = await response.text();
+
+  // Substitui o hostname no sitemap
+  sitemap = sitemap.replace(
+    /https:\/\/www\.rdstation\.com/g,
+    "https://cf-pages-test-6sn.pages.dev"
+  );
+
+  return new Response(sitemap, {
+    headers: { "Content-Type": "application/xml" },
+  });
 }
