@@ -1,15 +1,17 @@
 // /functions/redirect.js
+const WORKER_HOSTNAME = "https://cf-pages-test-6sn.pages.dev";
+const RESDIGITAIS_HOSTNAME = "https://resultadosdigitais.com.br";
+const RDSTATION_HOSTNAME = "https://www.rdstation.com";
 
 export async function onRequest(context) {
   const { request } = context;
-  const worker = "https://cf-pages-test-6sn.pages.dev";
   const url = new URL(request.url);
   const pathname = url.pathname;
 
   // Verifica se a URL é de um arquivo de mídia (como .jpg, .png, .gif)
   if (pathname.startsWith("/blog") && pathname.match(/\.(jpg|png|gif|jpeg)$/)) {
     // Construa a nova URL para a mídia
-    const newMediaUrl = `https://resultadosdigitais.com.br${pathname.replace(
+    const newMediaUrl = `${RESDIGITAIS_HOSTNAME}${pathname.replace(
       /^\/blog(\/|$)/,
       "$1"
     )}`;
@@ -35,7 +37,7 @@ export async function onRequest(context) {
   }
 
   if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
-    const newUrl = `${worker}${pathname}/${url.search}${url.hash}`;
+    const newUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
   }
 
@@ -44,9 +46,9 @@ export async function onRequest(context) {
   let targetUrl;
 
   if (pathname.startsWith("/blog")) {
-    targetUrl = `https://resultadosdigitais.com.br${formattedPathname}${url.search}${url.hash}`;
+    targetUrl = `${RESDIGITAIS_HOSTNAME}${formattedPathname}${url.search}${url.hash}`;
   } else {
-    targetUrl = `https://www.rdstation.com${formattedPathname}${url.search}${url.hash}`;
+    targetUrl = `${RDSTATION_HOSTNAME}${formattedPathname}${url.search}${url.hash}`;
   }
 
   const modifiedRequest = new Request(targetUrl, {
@@ -61,24 +63,28 @@ export async function onRequest(context) {
 
     if (response.status === 301) {
       const newLocation = response.headers.get("Location");
-      if (newLocation === "https://www.rdstation.com") {
-        return Response.redirect(`${worker}`, 301);
+
+      if (newLocation === `${RDSTATION_HOSTNAME}`) {
+        return Response.redirect(`${WORKER_HOSTNAME}`, 301);
       }
 
-      if (newLocation === "https://resultadosdigitais.com.br/") {
-        return Response.redirect(`${worker}/blog`, 301);
+      if (newLocation === `${RESDIGITAIS_HOSTNAME}/`) {
+        return Response.redirect(`${WORKER_HOSTNAME}/blog`, 301);
       }
 
       if (pathname.startsWith("/blog")) {
         if (newLocation !== formattedPathname) {
-          return Response.redirect(`${worker}/blog${newLocation}`, 301);
+          return Response.redirect(
+            `${WORKER_HOSTNAME}/blog${newLocation}`,
+            301
+          );
         }
       } else {
         let newLocationUrl = new URL(newLocation);
         let newPathname = newLocationUrl.pathname;
 
         if (newLocation !== formattedPathname) {
-          return Response.redirect(`${worker}${newPathname}`, 301);
+          return Response.redirect(`${WORKER_HOSTNAME}${newPathname}`, 301);
         }
       }
     }
@@ -117,11 +123,11 @@ async function handleSitemapRequest(pathname) {
   let sitemapUrl = "";
 
   if (ResdigitaisSitemapPaths.includes(pathname)) {
-    sitemapUrl = `https://www.resultadosdigitais.com.br${pathname}`;
+    sitemapUrl = `${RESDIGITAIS_HOSTNAME}${pathname}`;
   } else {
     sitemapUrl = pathname.startsWith("/blog-sitemap.xml")
-      ? `https://www.resultadosdigitais.com.br/sitemap.xml`
-      : `https://www.rdstation.com${pathname}`;
+      ? `${RESDIGITAIS_HOSTNAME}/sitemap.xml`
+      : `${RDSTATION_HOSTNAME}${pathname}`;
   }
 
   const response = await fetch(sitemapUrl);
@@ -146,7 +152,6 @@ async function handleSitemapRequest(pathname) {
 
   sitemap = sitemap.replace(/<\?xml-stylesheet.*\?>/i, "");
 
-  // Adiciona o sitemap extra se o pathname for sitemap_index.xml
   if (pathname.includes("sitemap_index.xml")) {
     const extraSitemap = `
       <sitemap>
@@ -154,7 +159,7 @@ async function handleSitemapRequest(pathname) {
         <lastmod>2023-08-09T10:55:00-03:00</lastmod>
       </sitemap>
     `;
-    // Insere o sitemap extra antes do fechamento da tag sitemapindex
+
     sitemap = sitemap.replace(
       "</sitemapindex>",
       `${extraSitemap}</sitemapindex>`
