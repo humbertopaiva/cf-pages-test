@@ -89,8 +89,6 @@ export async function onRequest(context) {
       }
     }
 
-    response = await modifyCanonicalLinks(response);
-
     return new Response(response.body, {
       status: response.status,
       statusText: response.statusText,
@@ -171,30 +169,4 @@ async function handleSitemapRequest(pathname) {
   return new Response(sitemap, {
     headers: { "Content-Type": "application/xml" },
   });
-}
-
-async function modifyCanonicalLinks(response) {
-  let contentType = response.headers.get("Content-Type") || "";
-
-  // Verifica se a resposta é um HTML
-  if (contentType.includes("text/html")) {
-    let text = await response.text();
-    let modifiedText = text.replace(
-      /<link rel="canonical" href="(https?:\/\/[^\/]+)(\/.+?)?"( \/)?>/g,
-      (match, p1, p2, p3) => {
-        let newPath = p2 || "/";
-        return `<link rel="canonical" href="${WORKER_HOSTNAME}${newPath}"${
-          p3 || ""
-        }>`;
-      }
-    );
-
-    return new Response(modifiedText, {
-      status: response.status,
-      statusText: response.statusText,
-      headers: response.headers,
-    });
-  }
-
-  return response;
 }
