@@ -9,7 +9,7 @@ export async function onRequest(context) {
   const pathname = url.pathname;
 
   await handleSitemapMediaResquest();
-  await handleSitemapRequest();
+  await handleSitemapRequest(pathname);
   handleBlogTrailingSlashRedirect();
 
   // if (pathname.includes(".xml")) {
