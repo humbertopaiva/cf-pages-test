@@ -180,8 +180,13 @@ async function modifyCanonicalLinks(response) {
   if (contentType.includes("text/html")) {
     let text = await response.text();
     let modifiedText = text.replace(
-      /<link rel="canonical" href="https?:\/\/[^\/]+(\/.+?)?"( \/)?>/g,
-      `<link rel="canonical" href="${WORKER_HOSTNAME}$1"$2>`
+      /<link rel="canonical" href="(https?:\/\/[^\/]+)(\/.+?)?"( \/)?>/g,
+      (match, p1, p2, p3) => {
+        let newPath = p2 || "/";
+        return `<link rel="canonical" href="${WORKER_HOSTNAME}${newPath}"${
+          p3 || ""
+        }>`;
+      }
     );
 
     return new Response(modifiedText, {
