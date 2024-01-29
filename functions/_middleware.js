@@ -31,7 +31,6 @@ export async function onRequest(context) {
   const pathname = url.pathname;
 
   if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
-    // const proxyUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
     return await context.next();
   }
 
@@ -63,6 +62,9 @@ export async function onRequest(context) {
   }
 
   if (!pathname.endsWith("/")) {
+    if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
+      return await context.next();
+    }
     const newUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
   }
