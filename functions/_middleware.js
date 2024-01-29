@@ -63,8 +63,8 @@ export async function onRequest(context) {
   }
 
   if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
-    const proxyUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
-    return fetch(proxyUrl, request);
+    // const proxyUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
+    return await context.next();
   }
 
   const formattedPathname = pathname.replace(/^\/blog(\/|$)/, "$1");
