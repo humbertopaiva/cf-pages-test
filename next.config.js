@@ -6,6 +6,7 @@ const nextConfig = {
     loaderFile: "./image-loader.js",
     unoptimized: false,
   },
+  trailingSlash: true,
 };
 
 module.exports = nextConfig;
