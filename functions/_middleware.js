@@ -3,12 +3,33 @@ const WORKER_HOSTNAME = "https://cf-pages-test-6sn.pages.dev";
 const RESDIGITAIS_HOSTNAME = "https://resultadosdigitais.com.br";
 const RDSTATION_HOSTNAME = "https://www.rdstation.com";
 
+const OLD_STACK_PAGES = [
+  "/",
+  "/produtos/marketing/",
+  "/cases-de-sucesso/",
+  "/contato/crm/",
+  "/contato/marketing/",
+  "/contato/outros-assuntos/",
+  "/parceiros/agencias-parceiras/",
+  "/parceiros/afiliados/",
+  "planos/crm/gratuito/",
+  "/planos/marketing/encontre-seu-plano-ideal/",
+  "/planos/crm/encontre-seu-plano-ideal/",
+  "/plataforma/",
+  "/produtos/crm/gestao/equipe-comercial/",
+  "/produtos/crm/vendas/automacao/",
+  "/produtos/crm/vendas/campos-obrigatorios-por-etapa/",
+  "/produtos/crm/vendas/funil-de-vendas/",
+  "/produtos/crm/vendas/vender-pelo-whatsapp/",
+  "/produtos/crm/integracoes/",
+  "/trabalhe-conosco/",
+];
+
 export async function onRequest(context) {
   const { request } = context;
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  // Verifica se a URL é de um arquivo de mídia (como .jpg, .png, .gif)
   if (pathname.startsWith("/blog") && pathname.match(/\.(jpg|png|gif|jpeg)$/)) {
     // Construa a nova URL para a mídia
     const newMediaUrl = `${RESDIGITAIS_HOSTNAME}${pathname.replace(
@@ -36,9 +57,14 @@ export async function onRequest(context) {
     return handleSitemapRequest(pathname);
   }
 
-  if (pathname.startsWith("/blog") && !pathname.endsWith("/")) {
+  if (!pathname.endsWith("/")) {
     const newUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
+  }
+
+  if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
+    const proxyUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
+    return fetch(proxyUrl, request);
   }
 
   const formattedPathname = pathname.replace(/^\/blog(\/|$)/, "$1");
