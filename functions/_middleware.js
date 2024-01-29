@@ -30,6 +30,11 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
+  if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
+    // const proxyUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
+    return await context.next();
+  }
+
   if (pathname.startsWith("/blog") && pathname.match(/\.(jpg|png|gif|jpeg)$/)) {
     // Construa a nova URL para a mídia
     const newMediaUrl = `${RESDIGITAIS_HOSTNAME}${pathname.replace(
@@ -60,11 +65,6 @@ export async function onRequest(context) {
   if (!pathname.endsWith("/")) {
     const newUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
-  }
-
-  if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
-    // const proxyUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
-    return await context.next();
   }
 
   const formattedPathname = pathname.replace(/^\/blog(\/|$)/, "$1");
