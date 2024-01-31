@@ -30,10 +30,12 @@ export async function onRequest(context) {
   const url = new URL(request.url);
   const pathname = url.pathname;
 
-  if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
-    return await context.next();
+  //verifica se é um arquivo de sitemap.xml
+  if (pathname.includes(".xml")) {
+    return handleSitemapRequest(pathname);
   }
 
+  // Trata os links de imagens dos sitemaps
   if (pathname.startsWith("/blog") && pathname.match(/\.(jpg|png|gif|jpeg)$/)) {
     // Construa a nova URL para a mídia
     const newMediaUrl = `${RESDIGITAIS_HOSTNAME}${pathname.replace(
@@ -57,17 +59,23 @@ export async function onRequest(context) {
     }
   }
 
+  //Se a solicitação não é para uma página da stack antiga, retorna para o stack atual
+  if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
+    return await context.next();
+  }
+
+  //Trata as requisições de páginas sem / ao final
   if (!pathname.endsWith("/")) {
-    if (pathname.includes(".xml")) {
-      return handleSitemapRequest(pathname);
-    }
+    //Se a solicitação não é para uma página da stack antiga, retorna para o stack atual
     if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
       return await context.next();
     }
+    //Se não tiver barra ao final, faz o redirecionamento 301 para a URL com /
     const newUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
   }
 
+  // Retira o path blog da URL feita na requisição para trazer as informações do site RD
   const formattedPathname = pathname.replace(/^\/blog(\/|$)/, "$1");
 
   let targetUrl;
