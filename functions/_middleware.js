@@ -57,11 +57,10 @@ export async function onRequest(context) {
     }
   }
 
-  if (pathname.includes(".xml")) {
-    return await handleSitemapRequest(pathname);
-  }
-
   if (!pathname.endsWith("/")) {
+    if (pathname.includes(".xml")) {
+      return handleSitemapRequest(pathname);
+    }
     if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
       return await context.next();
     }
