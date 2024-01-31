@@ -60,16 +60,16 @@ export async function onRequest(context) {
   }
 
   //Se a solicitação não é para uma página da stack antiga, retorna para o stack atual
-  if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
-    return await context.next();
-  }
+  // if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
+  //   return await context.next();
+  // }
 
   //Trata as requisições de páginas sem / ao final
   if (!pathname.endsWith("/")) {
-    //Se a solicitação não é para uma página da stack antiga, retorna para o stack atual
-    if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
-      return await context.next();
-    }
+    // //Se a solicitação não é para uma página da stack antiga, retorna para o stack atual
+    // if (!OLD_STACK_PAGES.includes(pathname) && !pathname.startsWith("/blog")) {
+    //   return await context.next();
+    // }
     //Se não tiver barra ao final, faz o redirecionamento 301 para a URL com /
     const newUrl = `${WORKER_HOSTNAME}${pathname}/${url.search}${url.hash}`;
     return Response.redirect(newUrl, 301);
@@ -115,6 +115,14 @@ export async function onRequest(context) {
           );
         }
       } else {
+        //Se a solicitação não é para uma página da stack antiga, retorna para o stack atual
+        if (
+          !OLD_STACK_PAGES.includes(pathname) &&
+          !pathname.startsWith("/blog")
+        ) {
+          return await context.next();
+        }
+
         let newLocationUrl = new URL(newLocation);
         let newPathname = newLocationUrl.pathname;
 
