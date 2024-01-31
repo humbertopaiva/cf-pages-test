@@ -58,7 +58,7 @@ export async function onRequest(context) {
   }
 
   if (pathname.includes(".xml")) {
-    return handleSitemapRequest(pathname);
+    return await handleSitemapRequest(pathname);
   }
 
   if (!pathname.endsWith("/")) {
