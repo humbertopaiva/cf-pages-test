@@ -16,16 +16,17 @@ export default function Home() {
             rel="noopener noreferrer"
           >
             By{" "}
-            <Image
+            {/* <Image
               src="https://resdigitais.wpenginepowered.com/wp-content/blogs.dir/8/files/2024/01/725x545.png"
               alt="RD LOGO"
               fill
-            />
+            /> */}
           </a>
         </div>
       </div>
 
       <div className={styles.center}>
+        <Image src="/dog.jpg" alt="Cachorro" fill />
         <Image
           className={styles.logo}
           src="/next.svg"
