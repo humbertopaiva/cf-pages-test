@@ -60,7 +60,11 @@ export async function onRequest(context) {
   }
 
   //Trata as requisições de páginas sem / ao final
-  if (!pathname.endsWith("/") && OLD_STACK_PAGES.includes(pathname)) {
+  if (
+    !pathname.endsWith("/") &&
+    OLD_STACK_PAGES.includes(pathname) &&
+    !pathname.includes("_next")
+  ) {
     //Se não tiver barra ao final, faz o redirecionamento 301 para a URL com /
     const seemsLikeFile = pathname.split("/").pop().includes(".");
 
