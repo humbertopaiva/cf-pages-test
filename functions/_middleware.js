@@ -100,15 +100,21 @@ export async function onRequest(context) {
     if (response.status === 301) {
       const newLocation = response.headers.get("Location");
 
-      if (newLocation === `${RDSTATION_HOSTNAME}`) {
+      if (
+        newLocation === `${RDSTATION_HOSTNAME}` &&
+        !pathname.includes("_next")
+      ) {
         return Response.redirect(`${WORKER_HOSTNAME}`, 301);
       }
 
-      if (newLocation === `${RESDIGITAIS_HOSTNAME}/`) {
+      if (
+        newLocation === `${RESDIGITAIS_HOSTNAME}/` &&
+        !pathname.includes("_next")
+      ) {
         return Response.redirect(`${WORKER_HOSTNAME}/blog`, 301);
       }
 
-      if (pathname.startsWith("/blog")) {
+      if (pathname.startsWith("/blog") && !pathname.includes("_next")) {
         if (newLocation !== formattedPathname) {
           return Response.redirect(
             `${WORKER_HOSTNAME}/blog${newLocation}`,
