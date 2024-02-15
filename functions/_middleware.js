@@ -64,10 +64,12 @@ export async function onRequest(context) {
     //Se não tiver barra ao final, faz o redirecionamento 301 para a URL com /
     const seemsLikeFile = pathname.split("/").pop().includes(".");
 
-    const newUrl = `${WORKER_HOSTNAME}${pathname}${seemsLikeFile ? "" : "/"}${
-      url.search
-    }${url.hash}`;
-    return Response.redirect(newUrl, 301);
+    if (!seemsLikeFile) {
+      const newUrl = `${WORKER_HOSTNAME}${pathname}${seemsLikeFile ? "" : "/"}${
+        url.search
+      }${url.hash}`;
+      return Response.redirect(newUrl, 301);
+    }
   }
 
   // Retira o path blog da URL feita na requisição para trazer as informações do site RD
